@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>LLG Mapper</title>
+</head>
+
+<body>
+    <main class="app-container">
+        <section class="map-section">
+            <!-- Building and floor navigation -->
+            <nav class="building-navigator">
+                <div class="building-selector">
+                    <h3 class="building-title">VH</h3>
+                    <button class="floor-button" data-level="vh_2" data-floor="3">3</button>
+                    <button class="floor-button" data-level="vh_2" data-floor="2">2</button>
+                    <button class="floor-button" data-level="vh_1" data-floor="1">1</button>
+                    <button class="floor-button is-active" data-level="vh_0" data-floor="0">0</button>
+                </div>
+
+                <div class="building-selector">
+                    <h3 class="building-title">Molière</h3>
+                    <button class="floor-button" data-level="mol_3" data-floor="3">3</button>
+                    <button class="floor-button" data-level="mol_2" data-floor="2">2</button>
+                    <button class="floor-button" data-level="mol_1" data-floor="1">1</button>
+                    <button class="floor-button" data-level="mol_0" data-floor="0">0</button>
+                </div>
+            </nav>
+
+            <!-- Floor plan image -->
+            <div class="map-container">
+                <img src="Plan LLg.jpg" alt="Floor plan of the school" class="floor-plan">
+            </div>
+        </section>
+
+        <section class="sidebar">
+            <!-- Room list section -->
+            <div class="sidebar-header">
+                <h2>Rooms</h2>
+            </div>
+            
+            <div class="search-container">
+                <input type="text" placeholder="Search for a room..." id="search-input" class="search-input" aria-label="Search rooms">
+            </div>
+            
+            <div class="rooms-container" id="rooms-list">
+                <div class="room-item" data-room-id="M201">M201</div>
+                <div class="room-item" data-room-id="M202">M202</div>
+                <div class="room-item" data-room-id="M203">M203</div>
+                <div class="room-item" data-room-id="M204">M204</div>
+                <div class="room-item" data-room-id="M205">M205</div>
+                <div class="room-item" data-room-id="M206">M206</div>
+                <div class="room-item" data-room-id="M207">M207</div>
+                <div class="room-item" data-room-id="VH101">VH101</div>
+                <div class="room-item" data-room-id="VH102">VH102</div>
+                <div class="room-item" data-room-id="VH103">VH103</div>
+                <div class="room-item" data-room-id="VH104">VH104</div>
+                <div class="room-item" data-room-id="VH105">VH105</div>
+                <div class="room-item" data-room-id="VH106">VH106</div>
+                <div class="room-item" data-room-id="VH107">VH107</div>
+                <div class="room-item" data-room-id="VH108">VH108</div>
+                <div class="room-item" data-room-id="VH109">VH109</div>
+                <div class="room-item" data-room-id="VH110">VH110</div>
+                <div class="room-item" data-room-id="VH111">VH111</div>
+            </div>
+        </section>
+    </main>
+</body>
+
+</html>
