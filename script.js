@@ -20,7 +20,6 @@ function renderRooms(rooms) {
         return;
     }
 
-    // Utilisation demandée: for var room in rooms puis room.name
     for (var i in rooms) {
         var room = rooms[i];
         var name = (room && room.name) ? room.name : (room.id || String(room));
