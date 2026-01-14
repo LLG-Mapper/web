@@ -11,24 +11,107 @@
 <body>
     <main class="app-container">
         <section class="map-section">
-            <!-- Building and floor navigation -->
-            <nav class="building-navigator">
-                <div class="building-selector">
-                    <h3 class="building-title">VH</h3>
-                    <button class="floor-button" data-level="vh_2" data-floor="3">3</button>
-                    <button class="floor-button" data-level="vh_2" data-floor="2">2</button>
-                    <button class="floor-button" data-level="vh_1" data-floor="1">1</button>
-                    <button class="floor-button is-active" data-level="vh_0" data-floor="0">0</button>
+            <!-- Integrated floor selector (from selector.html) -->
+            <div class="wrapper">
+                <div class="container">
+                    <!-- Main SVG -->
+                    <svg class="main-svg" viewBox="0 0 250 575" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+                    <!-- Central shaft -->
+                    <path d="M200 475C144.772 475 100 497.386 100 525H50V175C105.228 175 150 152.614 150 125H200V475Z" fill="#606060"/>
+                    
+                    <!-- Left column background -->
+                    <rect y="225" width="100" height="300" fill="#D9D9D9"/>
+                    
+                    <!-- Left circles background -->
+                    <circle cx="50" cy="525" r="50" fill="#D9D9D9"/>
+                    <circle cx="50" cy="225" r="50" fill="#D9D9D9"/>
+                    
+                    <!-- Right column background -->
+                    <rect x="150" y="125" width="100" height="300" fill="#D9D9D9"/>
+                    
+                    <!-- Right circles background -->
+                    <circle cx="200" cy="425" r="50" fill="#D9D9D9"/>
+                    <circle cx="200" cy="125" r="50" fill="#D9D9D9"/>
+                    
+                    <!-- Top bar -->
+                    <rect x="25" width="200" height="50" fill="#606060"/>
+                    <circle cx="25" cy="25" r="25" fill="#606060"/>
+                    <circle cx="225" cy="25" r="25" fill="#606060"/>
+                    
+                    <!-- M VH text -->
+                    <path d="M38.5838 13.7273H41.9474L49.8565 33.0455H50.1293L58.0384 13.7273H61.402V37H58.7656V19.3182H58.5384L51.2656 37H48.7202L41.4474 19.3182H41.2202V37H38.5838V13.7273Z" fill="#D9D9D9"/>
+                    <path d="M181.116 13.7273L188.026 33.3182H188.298L195.207 13.7273H198.162L189.616 37H186.707L178.162 13.7273H181.116ZM201.787 37V13.7273H204.605V24.0909H217.014V13.7273H219.832V37H217.014V26.5909H204.605V37H201.787Z" fill="#D9D9D9"/>
+                </svg>
+
+                <!-- Large floor selector overlay -->
+                <div id="selector" class="selector">
+                    <svg width="280" height="110" viewBox="0 0 280 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <g opacity="0.58">
+                            <rect x="55" width="170" height="110" fill="#464646"/>
+                            <circle cx="55" cy="55" r="55" fill="#464646"/>
+                            <circle cx="225" cy="55" r="55" fill="#464646"/>
+                        </g>
+                    </svg>
                 </div>
 
-                <div class="building-selector">
-                    <h3 class="building-title">Molière</h3>
-                    <button class="floor-button" data-level="mol_3" data-floor="3">3</button>
-                    <button class="floor-button" data-level="mol_2" data-floor="2">2</button>
-                    <button class="floor-button" data-level="mol_1" data-floor="1">1</button>
-                    <button class="floor-button" data-level="mol_0" data-floor="0">0</button>
-                </div>
-            </nav>
+                <!-- Left side floor buttons -->
+                <button class="floor-button btn-left-0" onclick="selectFloor(0)" data-floor="0" aria-label="Left building - Ground Floor">
+                    <svg viewBox="0 0 90 90">
+                        <circle cx="45" cy="45" r="45" fill="#868686"/>
+                        <text x="45" y="55" font-size="32" fill="#D9D9D9" text-anchor="middle" font-family="Arial, sans-serif">0</text>
+                    </svg>
+                </button>
+
+                <button class="floor-button btn-left-1" onclick="selectFloor(1)" data-floor="1" aria-label="Left building - 1st Floor">
+                    <svg viewBox="0 0 90 90">
+                        <circle cx="45" cy="45" r="45" fill="#868686"/>
+                        <text x="45" y="55" font-size="32" fill="#D9D9D9" text-anchor="middle" font-family="Arial, sans-serif">1</text>
+                    </svg>
+                </button>
+
+                <button class="floor-button btn-left-2" onclick="selectFloor(2)" data-floor="2" aria-label="Left building - 2nd Floor">
+                    <svg viewBox="0 0 90 90">
+                        <circle cx="45" cy="45" r="45" fill="#868686"/>
+                        <text x="45" y="55" font-size="32" fill="#D9D9D9" text-anchor="middle" font-family="Arial, sans-serif">2</text>
+                    </svg>
+                </button>
+
+                <button class="floor-button btn-left-3" onclick="selectFloor(3)" data-floor="3" aria-label="Left building - 3rd Floor">
+                    <svg viewBox="0 0 90 90">
+                        <circle cx="45" cy="45" r="45" fill="#868686"/>
+                        <text x="45" y="55" font-size="32" fill="#D9D9D9" text-anchor="middle" font-family="Arial, sans-serif">3</text>
+                    </svg>
+                </button>
+
+                <!-- Right side floor buttons -->
+                <button class="floor-button btn-right-1" onclick="selectFloor(1)" data-floor="1" aria-label="Right building - Ground Floor">
+                    <svg viewBox="0 0 90 90">
+                        <circle cx="45" cy="45" r="45" fill="#868686"/>
+                        <text x="45" y="55" font-size="32" fill="#D9D9D9" text-anchor="middle" font-family="Arial, sans-serif">0</text>
+                    </svg>
+                </button>
+
+                <button class="floor-button btn-right-2" onclick="selectFloor(2)" data-floor="2" aria-label="Right building - 1st Floor">
+                    <svg viewBox="0 0 90 90">
+                        <circle cx="45" cy="45" r="45" fill="#868686"/>
+                        <text x="45" y="55" font-size="32" fill="#D9D9D9" text-anchor="middle" font-family="Arial, sans-serif">1</text>
+                    </svg>
+                </button>
+
+                <button class="floor-button btn-right-3" onclick="selectFloor(3)" data-floor="3" aria-label="Right building - 2nd Floor">
+                    <svg viewBox="0 0 90 90">
+                        <circle cx="45" cy="45" r="45" fill="#868686"/>
+                        <text x="45" y="55" font-size="32" fill="#D9D9D9" text-anchor="middle" font-family="Arial, sans-serif">2</text>
+                    </svg>
+                </button>
+
+                <button class="floor-button btn-right-4" onclick="selectFloor(4)" data-floor="4" aria-label="Right building - 3rd Floor">
+                    <svg viewBox="0 0 90 90">
+                        <circle cx="45" cy="45" r="45" fill="#868686"/>
+                        <text x="45" y="55" font-size="32" fill="#D9D9D9" text-anchor="middle" font-family="Arial, sans-serif">3</text>
+                    </svg>
+                </button>
+            </div>
 
             <!-- Floor plan image -->
             <div class="map-container">
@@ -47,27 +130,38 @@
             </div>
             
             <div class="rooms-container" id="rooms-list">
-                <div class="room-item" data-room-id="M201">M201</div>
-                <div class="room-item" data-room-id="M202">M202</div>
-                <div class="room-item" data-room-id="M203">M203</div>
-                <div class="room-item" data-room-id="M204">M204</div>
-                <div class="room-item" data-room-id="M205">M205</div>
-                <div class="room-item" data-room-id="M206">M206</div>
-                <div class="room-item" data-room-id="M207">M207</div>
-                <div class="room-item" data-room-id="VH101">VH101</div>
-                <div class="room-item" data-room-id="VH102">VH102</div>
-                <div class="room-item" data-room-id="VH103">VH103</div>
-                <div class="room-item" data-room-id="VH104">VH104</div>
-                <div class="room-item" data-room-id="VH105">VH105</div>
-                <div class="room-item" data-room-id="VH106">VH106</div>
-                <div class="room-item" data-room-id="VH107">VH107</div>
-                <div class="room-item" data-room-id="VH108">VH108</div>
-                <div class="room-item" data-room-id="VH109">VH109</div>
-                <div class="room-item" data-room-id="VH110">VH110</div>
-                <div class="room-item" data-room-id="VH111">VH111</div>
+                <!-- La liste des salles sera générée dynamiquement par script.js -->
             </div>
         </section>
     </main>
+    <script>
+        let selectedFloor = null;
+        const selector = document.getElementById('selector');
+        
+        const floorPositions = {
+            0: 81.74,
+            1: 64.35,
+            2: 46.96,
+            3: 29.57,
+            4: 12.17
+        };
+
+        function selectFloor(floor) {
+            selectedFloor = floor;
+            const buttons = document.querySelectorAll('.floor-button');
+            buttons.forEach(button => {
+                if (parseInt(button.dataset.floor) === floor) {
+                    button.classList.add('selected');
+                } else {
+                    button.classList.remove('selected');
+                }
+            });
+            if (selector && floorPositions.hasOwnProperty(floor)) {
+                selector.style.top = floorPositions[floor] + '%';
+                selector.classList.add('visible');
+            }
+        }
+    </script>
     <script src="script.js"></script>
 </body>
 
