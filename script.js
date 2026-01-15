@@ -25,7 +25,7 @@ function renderRooms(rooms) {
         var name = (room && room.name) ? room.name : (room.id || String(room));
         var div = document.createElement('div');
         div.className = 'room-item';
-        div.dataset.roomId = room.id || name;
+        div.dataset.roomId = room.id;
         div.textContent = name;
         container.appendChild(div);
     }
