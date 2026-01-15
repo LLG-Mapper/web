@@ -52,56 +52,46 @@ async function clickHandler(id) {
 }
 
 function showRoomDetails(roomData) {
-    // Supprimer l'encadré existant s'il y en a un
-    const existingModal = document.getElementById('room-details-modal');
-    if (existingModal) {
-        existingModal.remove();
+    const modal = document.getElementById('room-details-modal');
+    const content = document.getElementById('room-details-content');
+
+    // Vider le contenu précédent
+    content.innerHTML = '';
+
+    // Titre avec le nom de la salle
+    const title = document.querySelector('.modal-content h3');
+    title.textContent = roomData.name || 'Salle inconnue';
+
+    // Ajouter la capacité
+    if (roomData.capacity !== undefined) {
+        const pCapacity = document.createElement('p');
+        pCapacity.innerHTML = `<strong>Capacité:</strong> ${roomData.capacity}`;
+        content.appendChild(pCapacity);
     }
 
-    // Créer l'encadré
-    const modal = document.createElement('div');
-    modal.id = 'room-details-modal';
-    modal.style.position = 'fixed';
-    modal.style.top = '50%';
-    modal.style.left = '50%';
-    modal.style.transform = 'translate(-50%, -50%)';
-    modal.style.backgroundColor = 'white';
-    modal.style.border = '1px solid #ccc';
-    modal.style.padding = '20px';
-    modal.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
-    modal.style.zIndex = '1000';
-    modal.style.maxWidth = '400px';
-    modal.style.borderRadius = '8px';
-
-    // Contenu
-    let content = '<h3>Détails de la salle</h3>';
-    for (const [key, value] of Object.entries(roomData)) {
-        if (key === 'classes' && Array.isArray(value)) {
-            content += `<p><strong>${key}:</strong> ${value.map(c => c.name || c.id).join(', ')}</p>`;
-        } else if (key === 'features' && Array.isArray(value)) {
-            content += `<p><strong>${key}:</strong> ${value.map(f => f.name || f.code).join(', ')}</p>`;
-        } else {
-            content += `<p><strong>${key}:</strong> ${value}</p>`;
-        }
+    // Ajouter les features
+    if (roomData.features && Array.isArray(roomData.features)) {
+        const pFeatures = document.createElement('p');
+        pFeatures.innerHTML = `<strong>Équipements:</strong> ${roomData.features.map(f => f.name || f.code).join(', ')}`;
+        content.appendChild(pFeatures);
     }
-    content += '<button onclick="closeRoomDetails()">Fermer</button>';
 
-    modal.innerHTML = content;
+    // Ajouter le statut d'ouverture avec un rond coloré
+    if (roomData.is_open !== undefined) {
+        const pStatus = document.createElement('p');
+        const statusIndicator = document.createElement('span');
+        statusIndicator.className = 'status-indicator ' + (roomData.is_open ? 'open' : 'closed');
+        pStatus.innerHTML = `<strong>Statut:</strong> `;
+        pStatus.appendChild(statusIndicator);
+        pStatus.innerHTML += roomData.is_open ? ' Ouvert' : ' Fermé';
+        content.appendChild(pStatus);
+    }
 
-    // Ajouter au body
-    document.body.appendChild(modal);
-
-    // Fermer en cliquant en dehors
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            closeRoomDetails();
-        }
-    });
+    // Afficher la modale
+    modal.style.display = 'block';
 }
 
 function closeRoomDetails() {
     const modal = document.getElementById('room-details-modal');
-    if (modal) {
-        modal.remove();
-    }
+    modal.style.display = 'none';
 }
