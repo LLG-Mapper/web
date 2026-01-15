@@ -1,11 +1,15 @@
 const api = 'http://127.0.0.1:5000/';
 
+let allRooms = []; // Stocker toutes les salles pour la recherche
+
 window.addEventListener('DOMContentLoaded', init);
 
 async function init() {
     try {
         const rooms = await get('rooms');
+        allRooms = rooms; // Sauvegarder les données
         renderRooms(rooms);
+        setupSearch(); // Initialiser la recherche
     } catch (err) {
         console.error('Failed to load rooms:', err);
     }
@@ -39,6 +43,24 @@ async function get(path) {
         throw new Error('Network response was not ok ' + response.statusText);
     }
     return await response.json();
+}
+
+function setupSearch() {
+    const searchInput = document.getElementById('search-input');
+    if (!searchInput) return;
+
+    searchInput.addEventListener('keyup', (event) => {
+        if (event.key === 'Enter') {
+            const query = searchInput.value.trim().toLowerCase();
+            if (query) {
+                const foundRoom = allRooms.find(room => room.name && room.name.toLowerCase() === query);
+                if (foundRoom) {
+                    clickHandler(foundRoom.id);
+                }
+                // Sinon, rien
+            }
+        }
+    });
 }
 
 async function clickHandler(id) {
