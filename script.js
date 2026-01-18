@@ -1,19 +1,46 @@
 const api = 'http://127.0.0.1:5000/';
 
 let allRooms = [];
-let currentSuggestions = [];
-let suggestionIndex = -1;
+let allBuildings = [];
+let allFeatures = [];
+let currentFilters = {
+    building: '',
+    floor: '',
+    features: [],
+    search: ''
+};
+let filteredRooms = [];
+let filtersVisible = false;
 
 window.addEventListener('DOMContentLoaded', init);
 
 async function init() {
     try {
-        const rooms = await get('rooms');
+        const [rooms, buildings] = await Promise.all([
+            get('rooms'),
+            get('buildings')
+        ]);
         allRooms = rooms || [];
-        renderRooms(allRooms);
+        allBuildings = buildings || [];
+        
+        // Extraire les features uniques des salles
+        const featuresSet = new Set();
+        allRooms.forEach(room => {
+            if (room.features) {
+                room.features.forEach(feature => {
+                    featuresSet.add(JSON.stringify({code: feature.code, name: feature.name}));
+                });
+            }
+        });
+        allFeatures = Array.from(featuresSet).map(f => JSON.parse(f));
+        
+        setupFilters();
+        filteredRooms = allRooms.slice(); // Copie initiale
+        renderRooms(filteredRooms);
         setupSearch();
+        setupFiltersToggle();
     } catch (err) {
-        console.error('Failed to load rooms:', err);
+        console.error('Failed to load data:', err);
     }
 }
 
@@ -45,69 +72,138 @@ async function get(path) {
 
 function setupSearch() {
     const searchInput = document.getElementById('search-input');
-    const suggestionsEl = document.getElementById('suggestions');
-    if (!searchInput || !suggestionsEl) return;
+    if (!searchInput) return;
 
     searchInput.addEventListener('input', () => {
-        const q = searchInput.value.trim().toLowerCase();
-        if (!q) return clearSuggestions();
-        const matches = allRooms.filter(r => (r.name && r.name.toLowerCase().includes(q)) || (String(r.id).toLowerCase().includes(q)));
-        currentSuggestions = matches.slice(0, 6);
-        suggestionIndex = -1;
-        renderSuggestions();
+        applyFilters(); // Re-appliquer les filtres avec la recherche
     });
+}
 
-    searchInput.addEventListener('keydown', (e) => {
-        if (!currentSuggestions.length) return;
-        if (e.key === 'ArrowDown') {
-            e.preventDefault();
-            suggestionIndex = Math.min(suggestionIndex + 1, currentSuggestions.length - 1);
-            renderSuggestions();
-        } else if (e.key === 'ArrowUp') {
-            e.preventDefault();
-            suggestionIndex = Math.max(suggestionIndex - 1, 0);
-            renderSuggestions();
-        } else if (e.key === 'Enter') {
-            e.preventDefault();
-            const sel = currentSuggestions[suggestionIndex >= 0 ? suggestionIndex : 0];
-            if (sel) selectSuggestion(sel);
-        } else if (e.key === 'Escape') {
-            clearSuggestions();
+function setupFiltersToggle() {
+    const toggleButton = document.getElementById('filters-toggle');
+    if (!toggleButton) return;
+    
+    toggleButton.addEventListener('click', () => {
+        const filtersContainer = document.getElementById('filters-container');
+        filtersVisible = !filtersVisible;
+        filtersContainer.style.display = filtersVisible ? 'block' : 'none';
+        toggleButton.textContent = filtersVisible ? 'Filtres ▲' : 'Filtres ▼';
+    });
+}
+
+function setupFilters() {
+    // Building filter
+    const buildingSelect = document.getElementById('building-filter');
+    allBuildings.forEach(building => {
+        const option = document.createElement('option');
+        option.value = building.id;
+        option.textContent = building.name;
+        buildingSelect.appendChild(option);
+    });
+    
+    // Floor filter - extraire les étages uniques des salles
+    const floorSelect = document.getElementById('floor-filter');
+    const floors = [...new Set(allRooms.map(room => room.floor))].sort();
+    floors.forEach(floor => {
+        const option = document.createElement('option');
+        option.value = floor;
+        option.textContent = `Étage ${floor}`;
+        floorSelect.appendChild(option);
+    });
+    
+    // Features checkboxes
+    const featuresContainer = document.getElementById('features-checkboxes');
+    allFeatures.forEach(feature => {
+        const label = document.createElement('label');
+        label.className = 'feature-checkbox';
+        
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.value = feature.code;
+        checkbox.dataset.featureId = feature.id;
+        checkbox.addEventListener('change', applyFilters); // Ajouter directement sur la checkbox
+        
+        const span = document.createElement('span');
+        span.textContent = feature.name;
+        
+        label.appendChild(checkbox);
+        label.appendChild(span);
+        featuresContainer.appendChild(label);
+    });
+    
+    // Event listeners for filters
+    buildingSelect.addEventListener('change', applyFilters);
+    floorSelect.addEventListener('change', applyFilters);
+    
+    // Reset button
+    const resetButton = document.getElementById('reset-filters');
+    if (resetButton) {
+        resetButton.addEventListener('click', resetFilters);
+    }
+}
+
+function resetFilters() {
+    // Reset building filter
+    document.getElementById('building-filter').value = '';
+    
+    // Reset floor filter
+    document.getElementById('floor-filter').value = '';
+    
+    // Reset features checkboxes
+    document.querySelectorAll('#features-checkboxes input:checked').forEach(checkbox => {
+        checkbox.checked = false;
+    });
+    
+    // Reset search
+    document.getElementById('search-input').value = '';
+    
+    // Reset current filters
+    currentFilters = {
+        building: '',
+        floor: '',
+        features: [],
+        search: ''
+    };
+    
+    // Re-apply filters (which will show all rooms)
+    applyFilters();
+}
+
+function applyFilters() {
+    const buildingFilter = document.getElementById('building-filter').value;
+    const floorFilter = document.getElementById('floor-filter').value;
+    const selectedFeatures = Array.from(document.querySelectorAll('#features-checkboxes input:checked')).map(cb => cb.value);
+    const searchQuery = document.getElementById('search-input').value.trim().toLowerCase();
+    
+    currentFilters.building = buildingFilter;
+    currentFilters.floor = floorFilter;
+    currentFilters.features = selectedFeatures;
+    currentFilters.search = searchQuery;
+    
+    filteredRooms = allRooms.filter(room => {
+        // Search filter
+        if (searchQuery) {
+            const roomName = room.name ? room.name.toLowerCase() : '';
+            const roomId = String(room.id).toLowerCase();
+            if (!roomName.includes(searchQuery) && !roomId.includes(searchQuery)) return false;
         }
+        
+        // Building filter
+        if (buildingFilter && room.building && room.building.id != buildingFilter) return false;
+        
+        // Floor filter
+        if (floorFilter && room.floor != floorFilter) return false;
+        
+        // Features filter
+        if (selectedFeatures.length > 0) {
+            const roomFeatures = room.features ? room.features.map(f => f.code) : [];
+            if (!selectedFeatures.every(feature => roomFeatures.includes(feature))) return false;
+        }
+        
+        return true;
     });
-
-    document.addEventListener('click', (ev) => {
-        if (!searchInput.contains(ev.target) && !suggestionsEl.contains(ev.target)) clearSuggestions();
-    });
-}
-
-function renderSuggestions() {
-    const suggestionsEl = document.getElementById('suggestions');
-    suggestionsEl.innerHTML = '';
-    if (!currentSuggestions.length) return;
-    currentSuggestions.forEach((room, idx) => {
-        const div = document.createElement('div');
-        div.className = 'suggestion-item' + (idx === suggestionIndex ? ' active' : '');
-        const name = room && room.name ? room.name : (room.id || String(room));
-        div.textContent = name;
-        div.dataset.roomId = room.id;
-        div.addEventListener('click', () => selectSuggestion(room));
-        suggestionsEl.appendChild(div);
-    });
-}
-
-function clearSuggestions() {
-    currentSuggestions = [];
-    suggestionIndex = -1;
-    const suggestionsEl = document.getElementById('suggestions');
-    if (suggestionsEl) suggestionsEl.innerHTML = '';
-}
-
-function selectSuggestion(room) {
-    const searchInput = document.getElementById('search-input');
-    searchInput.value = room && room.name ? room.name : (room.id || '');
-    clearSuggestions();
-    clickHandler(room.id);
+    
+    renderRooms(filteredRooms);
 }
 
 async function clickHandler(id) {
@@ -121,28 +217,59 @@ async function clickHandler(id) {
 }
 
 function showRoomDetails(roomData) {
-    const modal = document.getElementById('room-details-modal');
-    const content = document.getElementById('room-details-content');
-    content.innerHTML = '';
-    const title = document.querySelector('.modal-content h3');
-    title.textContent = (roomData && roomData.name) ? roomData.name : 'Salle inconnue';
+    // Masquer la liste, la recherche et les filtres
+    document.getElementById('rooms-list').style.display = 'none';
+    document.getElementById('search-container').style.display = 'none';
+    document.getElementById('filters-container').style.display = 'none';
+    
+    // Afficher les détails
+    const detailsContainer = document.getElementById('room-details');
+    detailsContainer.style.display = 'block';
+    
+    // Changer le titre et afficher le bouton retour
+    document.getElementById('sidebar-title').textContent = roomData.name || 'Salle inconnue';
+    document.getElementById('back-button').style.display = 'block';
+    
+    // Générer le contenu des détails
+    detailsContainer.innerHTML = '';
+    const title = document.createElement('h3');
+    title.textContent = roomData.name || 'Salle inconnue';
+    detailsContainer.appendChild(title);
+    
     const pCapacity = document.createElement('p');
     pCapacity.innerHTML = `<strong>Capacité:</strong> ${roomData.capacity ?? 'N/A'}`;
-    content.appendChild(pCapacity);
+    detailsContainer.appendChild(pCapacity);
+    
     const pFeatures = document.createElement('p');
     pFeatures.innerHTML = `<strong>Équipements:</strong> ${roomData.features && Array.isArray(roomData.features) ? roomData.features.map(f => f.name || f.code).join(', ') : 'Aucun'}`;
-    content.appendChild(pFeatures);
+    detailsContainer.appendChild(pFeatures);
+    
     const pStatus = document.createElement('p');
     const statusIndicator = document.createElement('span');
     statusIndicator.className = 'status-indicator ' + (roomData.is_open ? 'open' : 'closed');
     pStatus.innerHTML = `<strong>Statut:</strong> `;
     pStatus.appendChild(statusIndicator);
     pStatus.innerHTML += roomData.is_open ? ' Ouvert' : ' Fermé';
-    content.appendChild(pStatus);
-    modal.style.display = 'block';
+    detailsContainer.appendChild(pStatus);
+}
+
+function showRoomList() {
+    // Masquer les détails
+    document.getElementById('room-details').style.display = 'none';
+    
+    // Afficher la liste, la recherche et les filtres si ils étaient visibles
+    document.getElementById('rooms-list').style.display = 'block';
+    document.getElementById('search-container').style.display = 'block';
+    if (filtersVisible) {
+        document.getElementById('filters-container').style.display = 'block';
+    }
+    
+    // Remettre le titre et masquer le bouton retour
+    document.getElementById('sidebar-title').textContent = 'Rooms';
+    document.getElementById('back-button').style.display = 'none';
 }
 
 function closeRoomDetails() {
-    const modal = document.getElementById('room-details-modal');
-    modal.style.display = 'none';
+    // Cette fonction n'est plus nécessaire, mais gardée pour compatibilité
+    showRoomList();
 }

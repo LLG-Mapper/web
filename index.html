@@ -122,16 +122,35 @@
         <section class="sidebar">
             <!-- Room list section -->
             <div class="sidebar-header">
-                <h2>Rooms</h2>
+                <h2 id="sidebar-title">Rooms</h2>
+                <button id="back-button" class="back-button" onclick="showRoomList()" style="display: none;">← Retour</button>
             </div>
             
-            <div class="search-container">
+            <div class="search-container" id="search-container">
                 <input type="text" placeholder="Search for a room..." id="search-input" class="search-input" aria-label="Search rooms">
-                <div id="suggestions" class="suggestions" aria-label="Search suggestions"></div>
+                <button id="filters-toggle" class="filters-toggle">Filtres ▼</button>
+            </div>
+            
+            <div class="filters-container" id="filters-container" style="display: none;">
+                <select id="building-filter" class="filter-select">
+                    <option value="">Tous les bâtiments</option>
+                </select>
+                <select id="floor-filter" class="filter-select">
+                    <option value="">Tous les niveaux</option>
+                </select>
+                <div class="features-filter">
+                    <label>Équipements:</label>
+                    <div id="features-checkboxes"></div>
+                </div>
+                <button id="reset-filters" class="reset-filters">Réinitialiser</button>
             </div>
             
             <div class="rooms-container" id="rooms-list">
                 <!-- La liste des salles sera générée dynamiquement par script.js -->
+            </div>
+
+            <div class="room-details-container" id="room-details" style="display: none;">
+                <!-- Les détails de la salle seront affichés ici -->
             </div>
         </section>
     </main>
@@ -165,14 +184,6 @@
     </script>
     <script src="script.js"></script>
 
-    <!-- Room Details Modal -->
-    <div id="room-details-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-button" onclick="closeRoomDetails()">&times;</span>
-            <h3>Détails de la salle</h3>
-            <div id="room-details-content"></div>
-        </div>
-    </div>
 </body>
 
 </html>
