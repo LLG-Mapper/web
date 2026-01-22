@@ -77,6 +77,36 @@ function setupSearch() {
     searchInput.addEventListener('input', () => {
         applyFilters(); // Re-appliquer les filtres avec la recherche
     });
+
+    searchInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+            const searchQuery = searchInput.value.trim().toLowerCase();
+            if (searchQuery) {
+                // Trouver les salles qui correspondent exactement au nom ou à l'ID
+                const exactMatches = allRooms.filter(room => {
+                    const roomName = room.name ? room.name.toLowerCase() : '';
+                    const roomId = String(room.id).toLowerCase();
+                    return roomName === searchQuery || roomId === searchQuery;
+                });
+                if (exactMatches.length === 1) {
+                    clickHandler(exactMatches[0].id);
+                } else if (exactMatches.length > 1) {
+                    // Si plusieurs correspondances, afficher la première
+                    clickHandler(exactMatches[0].id);
+                } else {
+                    // Si aucune correspondance exacte, chercher dans les résultats filtrés
+                    const filteredMatches = filteredRooms.filter(room => {
+                        const roomName = room.name ? room.name.toLowerCase() : '';
+                        const roomId = String(room.id).toLowerCase();
+                        return roomName.includes(searchQuery) || roomId.includes(searchQuery);
+                    });
+                    if (filteredMatches.length > 0) {
+                        clickHandler(filteredMatches[0].id);
+                    }
+                }
+            }
+        }
+    });
 }
 
 function setupFiltersToggle() {
