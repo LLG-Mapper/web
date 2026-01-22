@@ -16,23 +16,14 @@ window.addEventListener('DOMContentLoaded', init);
 
 async function init() {
     try {
-        const [rooms, buildings] = await Promise.all([
+        const [rooms, buildings, features] = await Promise.all([
             get('rooms'),
-            get('buildings')
+            get('buildings'),
+            get('features')
         ]);
         allRooms = rooms || [];
         allBuildings = buildings || [];
-        
-        // Extraire les features uniques des salles
-        const featuresSet = new Set();
-        allRooms.forEach(room => {
-            if (room.features) {
-                room.features.forEach(feature => {
-                    featuresSet.add(JSON.stringify({code: feature.code, name: feature.name}));
-                });
-            }
-        });
-        allFeatures = Array.from(featuresSet).map(f => JSON.parse(f));
+        allFeatures = features || [];
         
         setupFilters();
         filteredRooms = allRooms.slice(); // Copie initiale
