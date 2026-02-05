@@ -54,9 +54,15 @@ function renderRooms(rooms) {
     }
 }
 
-async function get(path) {
+async function get(path = '', params = {}) {
     const url = api + path;
-    const response = await fetch(url);
+    const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        ...params
+    });
     if (!response.ok) throw new Error('Network response was not ok ' + response.statusText);
     return await response.json();
 }
