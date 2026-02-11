@@ -1,3 +1,6 @@
+function randomInt() {
+    return Math.random();
+}
 const api = 'http://127.0.0.1:5000/';
 
 let allRooms = [];
@@ -28,6 +31,7 @@ async function init() {
         setupFilters();
         filteredRooms = allRooms.slice(); // Copie initiale
         renderRooms(filteredRooms);
+            renderRoomPaths(filteredRooms);
         setupSearch();
         setupFiltersToggle();
     } catch (err) {
@@ -231,6 +235,7 @@ function applyFilters() {
     });
     
     renderRooms(filteredRooms);
+    renderRoomPaths(filteredRooms);
 }
 
 async function clickHandler(id) {
@@ -299,4 +304,60 @@ function showRoomList() {
 function closeRoomDetails() {
     // Cette fonction n'est plus nécessaire, mais gardée pour compatibilité
     showRoomList();
+}
+
+// -------------------------
+// SVG room path rendering
+// -------------------------
+function clearRoomPaths() {
+    const svg = document.querySelector('.main-svg-container svg.main-background');
+    if (!svg) return;
+    const existing = svg.querySelector('#rooms-overlay-group');
+    if (existing) existing.remove();
+}
+
+function renderRoomPaths(rooms) {
+    const svg = document.querySelector('.main-svg-container svg.main-background');
+    if (!svg) return;
+
+    // Remove previous overlays
+    clearRoomPaths();
+
+    const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    group.setAttribute('id', 'rooms-overlay-group');
+    svg.appendChild(group);
+
+    if (!rooms || rooms.length === 0) return;
+
+    for (const room of rooms) {
+        if (!room || !room.path) continue;
+        try {
+            const pathEl = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            pathEl.setAttribute('d', room.path);
+            pathEl.classList.add('room-overlay');
+            if (room.id) pathEl.dataset.roomId = room.id;
+            if (room.name) pathEl.dataset.roomName = room.name;
+            pathEl.style.fill = 'rgba(0, 255, 0, 0.5)';
+            if (randomInt() > 0.8) pathEl.style.fill = 'rgba(255, 0, 0, 0.5)'; // Couleur de surbrillance
+
+            // click -> show details
+            pathEl.addEventListener('click', (ev) => {
+                ev.stopPropagation();
+                const id = pathEl.dataset.roomId || room.id;
+                if (id) clickHandler(id);
+            });
+
+            // hover cue
+            pathEl.addEventListener('mouseenter', () => {
+                pathEl.classList.add('hover');
+            });
+            pathEl.addEventListener('mouseleave', () => {
+                pathEl.classList.remove('hover');
+            });
+
+            group.appendChild(pathEl);
+        } catch (e) {
+            console.warn('Failed to render room path', room, e);
+        }
+    }
 }

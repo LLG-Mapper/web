@@ -383,3 +383,18 @@ body, html {
 .status-indicator.closed {
     background-color: #dc3545;
 }
+
+/* SVG room overlays (interactive) */
+.room-overlay {
+    fill: rgba(52,152,219,0.12);
+    stroke: rgba(41,128,185,0.9);
+    stroke-width: 1.5;
+    cursor: pointer;
+    transition: fill 0.12s ease, stroke 0.12s ease, opacity 0.12s ease;
+    pointer-events: all;
+}
+.room-overlay.hover,
+.room-overlay:hover {
+    fill: rgba(52,152,219,0.32);
+    stroke: rgba(41,128,185,1);
+}
