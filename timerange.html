@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Selector</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 40px;
+            background: #1a1a1a;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 600px;
+            position: relative;
+            padding-top: 50px;
+        }
+
+        .time-labels {
+            position: absolute;
+            top: 0;
+            left: 30px;
+            width: 540px;
+            height: 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .time-label {
+            color: #7a7a7a;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.25s ease;
+            transform-origin: bottom center;
+            padding-bottom: 8px;
+        }
+
+        .time-label.selected {
+            color: #f5f5f5;
+            font-size: 22px;
+            transform: translateY(-8px);
+            font-weight: 600;
+        }
+
+        svg {
+            display: block;
+            cursor: grab;
+        }
+
+        svg:active {
+            cursor: grabbing;
+        }
+
+        .handle {
+            cursor: grab;
+            z-index: 10;
+        }
+
+        .handle:active {
+            cursor: grabbing;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="time-labels" id="timeLabels"></div>
+        
+        <svg width="600" height="50" viewBox="0 0 600 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Background -->
+            <rect width="600" height="50" fill="#1E1E1E"/>
+            
+            <!-- Track -->
+            <rect x="30" y="10" width="540" height="30" rx="15" fill="#505050"/>
+            
+            <!-- Track line -->
+            <line x1="53" y1="25" x2="547" y2="25" stroke="#D9D9D9" stroke-width="3" stroke-linecap="round"/>
+            
+            <!-- End caps -->
+            <circle cx="53" cy="25" r="8" fill="#505050" stroke="#D9D9D9" stroke-width="2"/>
+            <circle cx="547" cy="25" r="8" fill="#505050" stroke="#D9D9D9" stroke-width="2"/>
+            
+            <!-- Minus icon (left) -->
+            <line x1="48" y1="25" x2="58" y2="25" stroke="#D9D9D9" stroke-width="2" stroke-linecap="round"/>
+            
+            <!-- Plus icon (right) -->
+            <line x1="547" y1="20" x2="547" y2="30" stroke="#D9D9D9" stroke-width="2" stroke-linecap="round"/>
+            <line x1="542" y1="25" x2="552" y2="25" stroke="#D9D9D9" stroke-width="2" stroke-linecap="round"/>
+            
+            <!-- Handle -->
+            <g id="handle" class="handle">
+                <rect x="277" y="5" width="36" height="40" rx="8" fill="#7a7a7a"/>
+                <line x1="285.5" y1="35" x2="285.5" y2="15" stroke="#D9D9D9" stroke-width="3" stroke-linecap="round"/>
+                <line x1="295.5" y1="35" x2="295.5" y2="15" stroke="#D9D9D9" stroke-width="3" stroke-linecap="round"/>
+                <line x1="305.5" y1="35" x2="305.5" y2="15" stroke="#D9D9D9" stroke-width="3" stroke-linecap="round"/>
+            </g>
+        </svg>
+    </div>
+
+    <script>
+        const handle = document.getElementById('handle');
+        const timeLabels = document.getElementById('timeLabels');
+        
+        const minX = 53;
+        const maxX = 529;
+        
+        let isDragging = false;
+        let startX = 0;
+        let currentX = (minX + maxX) / 2;
+
+        const hours = [];
+        for (let i = 0; i <= 12; i++) {
+            hours.push(7 + i);
+        }
+
+        function createTimeLabels() {
+            timeLabels.innerHTML = '';
+            hours.forEach((hour, index) => {
+                const label = document.createElement('div');
+                label.className = 'time-label';
+                label.textContent = formatTime(hour);
+                label.dataset.index = index;
+                timeLabels.appendChild(label);
+            });
+        }
+
+        function updatePosition(x) {
+            currentX = Math.max(minX, Math.min(maxX, x));
+            handle.setAttribute('transform', `translate(${currentX - 295}, 0)`);
+            updateTimeDisplay();
+        }
+
+        function updateTimeDisplay() {
+            const range = maxX - minX;
+            const position = (currentX - minX) / range;
+            
+            const totalMinutes = 12 * 60;
+            const selectedMinutes = position * totalMinutes;
+            const selectedHour = 7 + selectedMinutes / 60;
+            
+            const closestHourIndex = Math.round(selectedMinutes / 60);
+            
+            document.querySelectorAll('.time-label').forEach((label, index) => {
+                if (index === closestHourIndex) {
+                    label.classList.add('selected');
+                    label.textContent = formatTime(selectedHour);
+                } else {
+                    label.classList.remove('selected');
+                    label.textContent = formatTime(7 + index);
+                }
+            });
+        }
+
+        function formatTime(hours) {
+            const h = Math.floor(hours);
+            const m = Math.round((hours - h) * 60);
+            return `${h}:${m.toString().padStart(2, '0')}`;
+        }
+
+        handle.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            startX = e.clientX - currentX;
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                updatePosition(e.clientX - startX);
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+
+        handle.addEventListener('touchstart', (e) => {
+            isDragging = true;
+            const touch = e.touches[0];
+            startX = touch.clientX - currentX;
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            if (isDragging) {
+                const touch = e.touches[0];
+                updatePosition(touch.clientX - startX);
+            }
+        });
+
+        document.addEventListener('touchend', () => {
+            isDragging = false;
+        });
+
+        createTimeLabels();
+        updatePosition(currentX);
+    </script>
+</body>
+</html>
