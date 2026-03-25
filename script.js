@@ -15,16 +15,51 @@ let currentFilters = {
 let filteredRooms = [];
 let filtersVisible = false;
 
+let now = new Date();
+
 window.addEventListener('DOMContentLoaded', init);
 
-async function init() {
+async function updateCurrentTime() {
+    now = new Date(`${date.value}T${time.value}`);
+    console.log('Current time updated to:', now);
     try {
         const [rooms, buildings, features] = await Promise.all([
-            get('rooms'),
+            get('rooms', {availability_at: now.toISOString()}),
             get('buildings'),
             get('features')
         ]);
-        allRooms = rooms || [];
+        allRooms = rooms.rooms || [];
+        allBuildings = buildings || [];
+        allFeatures = features || [];
+        
+        setupFilters();
+        filteredRooms = allRooms.slice(); // Copie initiale
+        renderRooms(filteredRooms);
+            renderRoomPaths(filteredRooms);
+        setupSearch();
+        setupFiltersToggle();
+    } catch (err) {
+        console.error('Failed to load data:', err);
+    }
+}
+
+async function init() {
+    var time = document.getElementById('time');
+    var date = document.getElementById('date');
+
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+
+    time.value = `${hours}:${minutes}`;
+    date.value = now.toISOString().split('T')[0];
+
+    try {
+        const [rooms, buildings, features] = await Promise.all([
+            get('rooms', {availability_at: now.toISOString()}),
+            get('buildings'),
+            get('features')
+        ]);
+        allRooms = rooms.rooms || [];
         allBuildings = buildings || [];
         allFeatures = features || [];
         
@@ -59,13 +94,13 @@ function renderRooms(rooms) {
 }
 
 async function get(path = '', params = {}) {
-    const url = api + path;
+    const queryString = new URLSearchParams(params).toString();
+    const url = api + path + (queryString ? '?' + queryString : '');
     const response = await fetch(url, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json'
-        },
-        ...params
+        }
     });
     if (!response.ok) throw new Error('Network response was not ok ' + response.statusText);
     return await response.json();
@@ -337,8 +372,10 @@ function renderRoomPaths(rooms) {
             pathEl.classList.add('room-overlay');
             if (room.id) pathEl.dataset.roomId = room.id;
             if (room.name) pathEl.dataset.roomName = room.name;
-            pathEl.style.fill = 'rgba(0, 255, 0, 0.5)';
-            if (randomInt() > 0.8) pathEl.style.fill = 'rgba(255, 0, 0, 0.5)'; // Couleur de surbrillance
+            
+            pathEl.style.fill = 'rgba(0, 255, 0, 1)';
+            if (!room.is_open) pathEl.style.fill = 'rgb(150, 0, 0)';
+            if (!room.is_available) pathEl.style.fill = 'rgba(255, 0, 0, 1)';
 
             // click -> show details
             pathEl.addEventListener('click', (ev) => {
