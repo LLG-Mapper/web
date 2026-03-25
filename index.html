@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="tt.css">
     <title>LLG Mapper</title>
 </head>
 
@@ -237,9 +238,6 @@
                 <select id="building-filter" class="filter-select">
                     <option value="">Tous les bâtiments</option>
                 </select>
-                <select id="floor-filter" class="filter-select">
-                    <option value="">Tous les niveaux</option>
-                </select>
                 <div class="features-filter">
                     <label>Équipements:</label>
                     <div id="features-checkboxes"></div>
@@ -256,34 +254,6 @@
             </div>
         </section>
     </main>
-    <script>
-        let selectedFloor = null;
-        const selector = document.getElementById('selector');
-        
-        const floorPositions = {
-            0: 81.74,
-            1: 64.35,
-            2: 46.96,
-            3: 29.57,
-            4: 12.17
-        };
-
-        function selectFloor(floor) {
-            selectedFloor = floor;
-            const buttons = document.querySelectorAll('.floor-button');
-            buttons.forEach(button => {
-                if (parseInt(button.dataset.floor) === floor) {
-                    button.classList.add('selected');
-                } else {
-                    button.classList.remove('selected');
-                }
-            });
-            if (selector && floorPositions.hasOwnProperty(floor)) {
-                selector.style.top = floorPositions[floor] + '%';
-                selector.classList.add('visible');
-            }
-        }
-    </script>
     <script src="script.js"></script>
 
 </body>
