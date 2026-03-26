@@ -404,3 +404,11 @@ body, html {
     fill: rgba(52,152,219,0.32);
     stroke: rgba(41,128,185,1);
 }
+
+.floorplan {
+    display: none;
+}
+
+.visible {
+    display: initial;
+}

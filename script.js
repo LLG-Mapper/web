@@ -18,7 +18,7 @@ window.addEventListener('DOMContentLoaded', init);
 async function updateAll() {
     try {
         const [rooms, buildings, features] = await Promise.all([
-            get('rooms', { availability_at: now.toISOString(), floor: selectedFloor }),
+            get('rooms', { availability_at: now.toISOString(), display_floor: selectedFloor }),
             get('buildings'),
             get('features')
         ]);
@@ -63,6 +63,10 @@ function selectFloor(floor) {
         selector.style.top = floorPositions[floor] + '%';
         selector.classList.add('visible');
     }
+    document.querySelectorAll('.floorplan').forEach(floorplan => {
+        floorplan.classList.remove('visible');
+    });
+    document.querySelector('.floor_' + selectedFloor).classList.add('visible');
     updateAll();
 }
 
