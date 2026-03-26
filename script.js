@@ -43,10 +43,7 @@ const selector = document.getElementById('selector');
 
 const floorPositions = {
     0: 81.74,
-    1: 64.35,
-    2: 46.96,
-    3: 29.57,
-    4: 12.17
+    1: 64.35
 };
 
 function selectFloor(floor) {
