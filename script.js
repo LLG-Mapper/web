@@ -305,10 +305,10 @@ function showRoomDetails(roomData) {
 
     const pStatus = document.createElement('p');
     const statusIndicator = document.createElement('span');
-    statusIndicator.className = 'status-indicator ' + (roomData.is_open ? 'open' : 'closed');
+    statusIndicator.className = 'status-indicator ' + (roomData.is_open ? (roomData.is_available ? ' open' : 'busy') : 'closed');
     pStatus.innerHTML = `<strong>Statut:</strong> `;
     pStatus.appendChild(statusIndicator);
-    pStatus.innerHTML += roomData.is_open ? ' Ouvert' : ' Fermé';
+    pStatus.innerHTML += roomData.is_open ? (roomData.is_available ? ' Ouvert' : 'Occupée') : 'Fermée';
     detailsContainer.appendChild(pStatus);
 
     get('classes', { room: roomData.id }).then(classesData => {

@@ -379,11 +379,15 @@ body, html {
 }
 
 .status-indicator.open {
-    background-color: #28a745;
+    background-color: #00ff00;
 }
 
 .status-indicator.closed {
     background-color: #dc3545;
+}
+
+.status-indicator.busy {
+    background-color: #ffc107;
 }
 
 /* SVG room overlays (interactive) */
